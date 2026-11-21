@@ -7,11 +7,12 @@ import re
 
 client = Groq(api_key=st.secrets["GROQ_API"])
 
-#TODO: meter o melhor modelo 
 #TODO: definir parametros
 #TODO: adicionar delays?
 #TODO: if is not attack??
 #TODO: poder escolher o modelo? atual : openai/gpt-oss-120b
+#TODO: fix {} enviados
+#TODO: prompt hardening
 def chat(messages: list[dict]):
     response = client.chat.completions.create(
         model= st.secrets["GROQ_MODEL"],
@@ -73,14 +74,11 @@ def run_simulation(guardrails_keys: list[str]):
             }
             results.append({"stage": sid, "attack": True, "blocked_by": blocked_by})
 
+    breached = [STAGES[r["stage"]]["title"] for r in results if r["blocked_by"] is None]
     if errored:
         outcome = "ERROR"
     else:
-        breached = {r["stage"] for r in results if r["attack"] and r["blocked_by"] is None}
-        if not breached:
-            outcome = "CONTAINED"
-        else: 
-            outcome = "BREACHED"   
+        outcome = "CONTAINED" if not breached else "BREACHED"
 
     yield {"type": "VERDICT", "outcome": outcome, "stages": results}
     yield {"type": "ARCHETYPE", "profile": classify_archetype(guardrails_keys)} #corrigir classify archetype
