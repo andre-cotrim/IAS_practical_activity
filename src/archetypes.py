@@ -13,7 +13,7 @@ GUARDRAIL_METADATA = {
     # Layer A: Model Reasoning & Prompt Controls
     "prompt_hardening": {"layer": "A", "cost": 15, "autonomy": 1.00, "name": "System Prompt Hardening"},
     "cot_safety_watchdog": {"layer": "A", "cost": 30, "autonomy": 0.90, "name": "CoT Safety Watchdog"},
-    "file_exploration_penalty": {"layer": "A", "cost": 20, "autonomy": 0.75, "name": "File Exploration Penalty"},
+    "file_exploration_constraint": {"layer": "A", "cost": 20, "autonomy": 0.75, "name": "File Exploration Constraint"},
     
     # Layer B: Tooling & Permission Controls
     "schema_validation": {"layer": "B", "cost": 25, "autonomy": 0.95, "name": "Tool Argument Schema Validation"},
@@ -117,11 +117,11 @@ def classify_archetype(active_guardrails: Dict[str, bool]) -> Dict[str, Any]:
     # 4. Rule evaluation in priority order
     if has_domain_filter and has_path_filter and has_read_only:
         matched = ARCHETYPES["THE_BUNKER"]
-    elif has_hitl and (has_watchdog or has_schema):
+    elif has_hitl:
         matched = ARCHETYPES["THE_BUREAUCRAT"]
     elif (spend_a >= 15 and spend_c == 0 and not has_read_only and not has_path_filter):
         matched = ARCHETYPES["THE_NAIVE_ETHICIST"]
-    elif (has_watchdog or has_anomaly) and (not has_domain_filter) and (not has_read_only):
+    elif (has_watchdog or has_anomaly) and (not has_domain_filter) and (not has_read_only) and (not has_path_filter):
         matched = ARCHETYPES["THE_OBSERVER"]
     elif spend_a <= 40 and spend_b >= 25 and spend_c >= 25:
         matched = ARCHETYPES["THE_PRAGMATIST"]
