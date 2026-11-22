@@ -3,7 +3,7 @@
 
 ---
 
-## 1. Overview & Resource Economy
+## Overview & Resource Economy
 Securing an autonomous agent requires **Defense-in-Depth**—layering controls across the prompt, the tools, and the environment.
 
 * **Player Budget:** `100 Credits`
@@ -13,22 +13,9 @@ Securing an autonomous agent requires **Defense-in-Depth**—layering controls a
   * **Layer B:** 3 Tooling & Permission Controls (Tool execution level)
   * **Layer C:** 3 Environment & Network Controls (System access level)
 
-### The Multi-Vector Security Audit Rule ($V_1 \land V_2 \land V_3$)
-In a real enterprise cybersecurity audit (Red Teaming), an agentic system is not certified secure simply because one door is locked. If the agent can bypass perimeter controls via another open vector, the overall security posture fails.
-
-Therefore, the simulator evaluates the defense loadout against **all 3 attack vectors simultaneously**:
-* **Vector 1 ($V_1$):** Filesystem Reconnaissance (`ACT_01_RECON`)
-* **Vector 2 ($V_2$):** Lateral Movement (`ACT_02_LATERAL`)
-* **Vector 3 ($V_3$):** Data Exfiltration (`ACT_03_EXFIL`)
-
-$$\text{Verdict} = \text{CONTAINED} \iff V_1 \land V_2 \land V_3$$
-
-* **Full Containment:** Certified if and only if **all 3 vectors** are simultaneously neutralized (3/3).
-* **Breach:** If even a single vector is unprotected (e.g. 2/3 neutralized), the agent breaches the sandbox through that open vector!
-
 ---
 
-## 2. Layer A: Cognitive & Prompt Controls (Model Level)
+## Layer A: Cognitive & Prompt Controls (Model Level)
 
 ### 1. System Prompt Hardening
 * **ID:** `prompt_hardening` | **Cost:** 15 Credits | **Layer:** A
@@ -62,7 +49,7 @@ $$\text{Verdict} = \text{CONTAINED} \iff V_1 \land V_2 \land V_3$$
 
 ---
 
-## 3. Layer B: Tooling & Permission Controls (Tool Execution Level)
+## Layer B: Tooling & Permission Controls (Tool Execution Level)
 
 ### 4. Tool Argument Schema Validation
 * **ID:** `schema_validation` | **Cost:** 25 Credits | **Layer:** B
@@ -100,7 +87,7 @@ $$\text{Verdict} = \text{CONTAINED} \iff V_1 \land V_2 \land V_3$$
 
 ---
 
-## 4. Layer C: Environment & Network Controls (System Access Level)
+## Layer C: Environment & Network Controls (System Access Level)
 
 ### 7. Domain Whitelisting
 * **ID:** `domain_whitelisting` | **Cost:** 35 Credits | **Layer:** C
@@ -136,19 +123,19 @@ $$\text{Verdict} = \text{CONTAINED} \iff V_1 \land V_2 \land V_3$$
 
 ---
 
-## 5. Summary Matrix & Kill-Chain Interception Map
+## Summary Matrix & Kill-Chain Interception Map
 
-| Guardrail Name | ID | Layer | Cost | Neutralized Attack Vectors | Authoritative Reference |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| **System Prompt Hardening** | `prompt_hardening` | A | 15 CR | Ineffective under goal pressure (shows bypass) | Anthropic Constitutional AI / OWASP LLM01 |
-| **CoT Safety Watchdog** | `cot_safety_watchdog` | A | 30 CR | **Vector 3 (Exfil)** (catches egress intent) | Anthropic ASL-3 / UK AI Safety Institute |
-| **File Exploration Constraint**| `file_exploration_constraint`| A | 20 CR | **Vector 1 (Recon)** (blocks `find /`, `tree`) | DeepMind (Krakovna et al.) / MITRE T1083 |
-| **Schema Validation** | `schema_validation` | B | 25 CR | Command chaining (blocks `;`, `&&`, `\|`) | OWASP LLM06 / OpenAI Structured Outputs |
-| **Read-Only Tool Mode** | `read_only_mode` | B | 30 CR | **Vector 2 (Lateral)** (disables write/rsync) | Least Privilege / NIST AI RMF / OWASP LLM06 |
-| **Human-in-the-Loop Review** | `human_in_the_loop` | B | 40 CR | **Vector 2 (Lateral) & Vector 3 (Exfil)** | EU AI Act Art. 14 / NIST AI RMF |
-| **Domain Whitelisting** | `domain_whitelisting` | C | 35 CR | **Vector 3 (Exfil)** (blocks external domains) | OWASP LLM02 (SSRF) / OpenAI Safe Browsing |
-| **Path Whitelisting** | `path_whitelisting` | C | 25 CR | **Vector 1 (Recon) & Vector 2 (Lateral)** | CWE-22 Path Traversal / OWASP LLM06 |
-| **Activity Circuit Breaker**| `traffic_anomaly` | C | 30 CR | **Vector 2 (Lateral)** (burst sync freeze) | Google SAIF / MITRE ATT&CK T1030 |
+| Guardrail Name | ID | Layer | Cost | Neutralized Attack Vectors |
+| :--- | :--- | :---: | :---: | :--- |
+| **System Prompt Hardening** | `prompt_hardening` | A | 15 CR | Ineffective under goal pressure (shows bypass) |
+| **CoT Safety Watchdog** | `cot_safety_watchdog` | A | 30 CR | **Vector 3 (Exfil)** (catches egress intent) |
+| **File Exploration Constraint** | `file_exploration_constraint` | A | 20 CR | **Vector 1 (Recon)** (blocks `find /`, `tree`) |
+| **Schema Validation** | `schema_validation` | B | 25 CR | Command chaining (blocks `;`, `&&`, `\|`) |
+| **Read-Only Tool Mode** | `read_only_mode` | B | 30 CR | **Vector 2 (Lateral)** (disables write/rsync) |
+| **Human-in-the-Loop Review** | `human_in_the_loop` | B | 40 CR | **Vector 2 (Lateral) & Vector 3 (Exfil)** |
+| **Domain Whitelisting** | `domain_whitelisting` | C | 35 CR | **Vector 3 (Exfil)** (blocks external domains) |
+| **Path Whitelisting** | `path_whitelisting` | C | 25 CR | **Vector 1 (Recon) & Vector 2 (Lateral)** |
+| **Activity Circuit Breaker** | `traffic_anomaly` | C | 30 CR | **Vector 2 (Lateral)** (burst sync freeze) |
 
 ### Defense Vector Coverage & Winning Combinations
 To achieve **Full Containment** ($V_1 \land V_2 \land V_3 = \text{True}$), a player's 100-credit loadout must contain at least one defense covering each vector:
@@ -156,20 +143,3 @@ To achieve **Full Containment** ($V_1 \land V_2 \land V_3 = \text{True}$), a pla
 * **Vector 1 ($V_1$):** `file_exploration_constraint` (20 CR) OR `path_whitelisting` (25 CR)
 * **Vector 2 ($V_2$):** `read_only_mode` (30 CR) OR `path_whitelisting` (25 CR) OR `traffic_anomaly` (30 CR) OR `human_in_the_loop` (40 CR)
 * **Vector 3 ($V_3$):** `domain_whitelisting` (35 CR) OR `human_in_the_loop` (40 CR) OR `cot_safety_watchdog` (30 CR)
-
-### Example Balanced Winning Loadouts (Under 100 Credits)
-1. **The Pragmatist (100 CR):** `prompt_hardening` (15) + `schema_validation` (25) + `path_whitelisting` (25) + `domain_whitelisting` (35).
-   * $V_1$: Blocked by `path_whitelisting`.
-   * $V_2$: Blocked by `path_whitelisting`.
-   * $V_3$: Blocked by `domain_whitelisting`.
-   * Outcome: **CONTAINED (3/3)**. Autonomy: 65% (Balanced).
-2. **The Bunker (90 CR):** `read_only_mode` (30) + `path_whitelisting` (25) + `domain_whitelisting` (35).
-   * $V_1$: Blocked by `path_whitelisting`.
-   * $V_2$: Blocked by `path_whitelisting` & `read_only_mode`.
-   * $V_3$: Blocked by `domain_whitelisting`.
-   * Outcome: **CONTAINED (3/3)**. Autonomy: 58% (Restricted).
-3. **The Bureaucrat (85 CR):** `human_in_the_loop` (40) + `path_whitelisting` (25) + `file_exploration_constraint` (20).
-   * $V_1$: Blocked by `path_whitelisting` & `file_exploration_constraint`.
-   * $V_2$: Blocked by `path_whitelisting` & `human_in_the_loop`.
-   * $V_3$: Blocked by `human_in_the_loop`.
-   * Outcome: **CONTAINED (3/3)**. Autonomy: 19% (Crippled).

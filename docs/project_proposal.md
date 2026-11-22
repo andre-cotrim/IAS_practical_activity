@@ -54,13 +54,14 @@ graph LR
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ 🛡️ SEC-OPS DEFENSE CONSOLE // SELECT GUARDRAILS (BUDGET: 100 CR)                      │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ FUEL GAUGE: [████████████░░░░░░░░] 60 Spent | 40 Remaining                             │
+│ BUDGET GAUGE: [████████████████████] 100 Spent | 0 Remaining                           │
 │                                                                                        │
 │ [ 1. Prompt Controls ]       [ 2. Tool Permissions ]      [ 3. Network & Paths ]       │
 │ ────────────────────────────────────────────────────────────────────────────────────── │
-│ [ ] System Prompt Hardening (15 CR)   - Negative verbal constraint in prompt context   │
-│ [X] Read-Only Tool Mode (30 CR)       - Disables write/transfer tools (rsync, scp)     │
-│ [X] Domain Whitelisting (35 CR)       - Blocks all requests to external web domains    │
+│ [X] System Prompt Hardening (15 CR)   - Injects Constitutional AI security directives  │
+│ [X] Tool Argument Schema (25 CR)      - Enforces strict regex/JSON parameter bounds    │
+│ [X] Path Whitelisting (25 CR)         - Restricts filesystem execution to /app/ jail   │
+│ [X] Domain Whitelisting (35 CR)       - Blocks unauthorized external egress domains    │
 │                                                                                        │
 │ [ 🔒 COMMIT DEFENSES & EXECUTE LIVE DEMONSTRATION ]                                    │
 └────────────────────────────────────────────────────────────────────────────────────────┘
@@ -73,7 +74,7 @@ graph LR
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ 🎯 MULTI-VECTOR SECURITY AUDIT RESOLUTION & OPERATOR PROFILE                           │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ YOUR DEFENSE ARCHETYPE: ⚖️ "THE PRAGMATIST"                                             │
+│ YOUR DEFENSE ARCHETYPE: 🦉 "THE WISE ONE"                                               │
 │ Assessment: You deployed true Defense-in-Depth, balancing prompt directives (Layer A), │
 │ argument schema scoping (Layer B), and filesystem/network perimeters (Layer C).        │
 │                                                                                        │
@@ -107,7 +108,7 @@ To keep the project specification modular and clean, detailed reference guides a
   * 🛡️ **Full Specification:** [guardrails.md](guardrails.md)
 
 * **Behavioral Security Archetypes:**
-  * The operator's spending distribution across the 3 layers maps to a psychological risk profile (from physical isolation in *The Bunker* to unconstrained prompt trust in *The Naive Ethicist*).
+  * The operator's spending distribution across the 3 layers maps to a psychological risk profile (from physical isolation in *The Bunker* to unconstrained prompt trust in *The Naive*).
   * 🎭 **Full Catalog:** [archetypes.md](archetypes.md)
 
 * **Incident Attack Stages:**
@@ -178,16 +179,17 @@ from src.archetypes import classify_archetype
 def evaluate_vector(stage_id, command, cot_text, active_guardrails):
     for g_id, is_active in active_guardrails.items():
         if is_active:
-            eval_res = getattr(GuardrailsSuite, g_id)(command, cot_text, stage_id)
+            eval_res = getattr(GuardrailsSuite, g_id)(command=command, cot_text=cot_text, stage_id=stage_id)
             if eval_res["blocked"]:
                 return {"neutralized": True, "guardrail": g_id, "log": eval_res["log"]}
     return {"neutralized": False, "guardrail": None, "log": "Vector unmitigated!"}
 
 def run_audit_simulation(active_guardrails: dict[str, bool], live_outputs: dict = None):
+    outputs = live_outputs or DEFAULT_STAGE_BEHAVIORS
     vector_results = {}
     neutralized_count = 0
     for stage_id, stage_info in STAGES.items():
-        data = live_outputs.get(stage_id, DEFAULT_STAGE_BEHAVIORS[stage_id])
+        data = outputs.get(stage_id, DEFAULT_STAGE_BEHAVIORS[stage_id])
         res = evaluate_vector(stage_id, data["command"], data["cot"], active_guardrails)
         vector_results[stage_id] = res
         if res["neutralized"]:

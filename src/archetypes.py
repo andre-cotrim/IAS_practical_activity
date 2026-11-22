@@ -8,23 +8,8 @@ and computes the operational Autonomy Retention Index of the resulting system.
 import math
 from typing import Dict, Any
 
-# Guardrail costs, layers, and operational autonomy retention factors
-GUARDRAIL_METADATA = {
-    # Layer A: Model Reasoning & Prompt Controls
-    "prompt_hardening": {"layer": "A", "cost": 15, "autonomy": 1.00, "name": "System Prompt Hardening"},
-    "cot_safety_watchdog": {"layer": "A", "cost": 30, "autonomy": 0.90, "name": "CoT Safety Watchdog"},
-    "file_exploration_constraint": {"layer": "A", "cost": 20, "autonomy": 0.75, "name": "File Exploration Constraint"},
-    
-    # Layer B: Tooling & Permission Controls
-    "schema_validation": {"layer": "B", "cost": 25, "autonomy": 0.95, "name": "Tool Argument Schema Validation"},
-    "read_only_mode": {"layer": "B", "cost": 30, "autonomy": 0.85, "name": "Read-Only Tool Mode"},
-    "human_in_the_loop": {"layer": "B", "cost": 40, "autonomy": 0.30, "name": "Human-in-the-Loop"},
-    
-    # Layer C: Environment & Network Controls
-    "domain_whitelisting": {"layer": "C", "cost": 35, "autonomy": 0.80, "name": "Domain Whitelisting"},
-    "path_whitelisting": {"layer": "C", "cost": 25, "autonomy": 0.85, "name": "Path Whitelisting"},
-    "traffic_anomaly": {"layer": "C", "cost": 30, "autonomy": 0.85, "name": "Activity Circuit Breaker"},
-}
+# Guardrail costs, layers, autonomy factors, and descriptions imported from the authoritative catalog
+from src.guardrails import GUARDRAIL_METADATA
 
 ARCHETYPES = {
     "THE_BUNKER": {
@@ -32,45 +17,35 @@ ARCHETYPES = {
         "title": "The Bunker",
         "icon": "🏰",
         "tagline": "If it has a network cable, pull it.",
-        "description": "You fundamentally distrust model reasoning and reject the notion that an AI can be safely governed through semantic rules. You invested in strict operational restrictions: locking tools to read-only mode, whitelisting local folder paths, and blocking external web domains.",
-        "philosophy": "Environment & Restriction Purist",
-        "trade_off": "Maximum containment security at the cost of agent collaboration and multi-agent synergy."
+        "description": "You prioritized hard environmental isolation over soft rules, locking tools to read-only mode and from external networks. While this guarantees complete sandbox containment, it severely throttles agent autonomy and limits multi-node collaboration."
     },
-    "THE_NAIVE_ETHICIST": {
-        "id": "THE_NAIVE_ETHICIST",
-        "title": "The Naive Ethicist",
+    "THE_NAIVE": {
+        "id": "THE_NAIVE",
+        "title": "The Naive",
         "icon": "🕊️",
         "tagline": "I asked it nicely not to break the rules.",
-        "description": "You relied heavily on soft, cognitive controls while providing wide-open permissions and unrestricted external domain access. You assumed that alignment and polite directives are sufficient to constrain a reasoning model.",
-        "philosophy": "Prompt Idealist",
-        "trade_off": "Maximum agent autonomy, but catastrophic failure when optimization pressure incentivizes rule-breaking."
+        "description": "You prioritized verbal trust and polite prompt instructions while leaving filesystem and network access wide open. The agent retains full operational speed, but completely breaks containment the moment task deadlines incentivize rule violations."
     },
-    "THE_BUREAUCRAT": {
-        "id": "THE_BUREAUCRAT",
-        "title": "The Bureaucrat",
-        "icon": "📋",
-        "tagline": "Nothing happens without signed triplicate approval.",
-        "description": "You believe in rigid procedural oversight and mandatory human authorization for any external action, combined with schema validation. The agent is halted whenever it steps outside routine commands.",
-        "philosophy": "Protocol Centric",
-        "trade_off": "Zero unverified breaches, but manual review queues destroy the speed and value of autonomous agents."
+    "THE_CONTROL_FREAK": {
+        "id": "THE_CONTROL_FREAK",
+        "title": "The Control Freak",
+        "icon": "🕹️",
+        "tagline": "Nothing happens without my approval.",
+        "description": "You prioritized mandatory human sign-off for critical commands, refusing to let the AI act unmonitored. While this successfully halts unauthorized actions, manual review queues destroy the speed and core value of autonomous execution."
     },
     "THE_OBSERVER": {
         "id": "THE_OBSERVER",
         "title": "The Observer",
         "icon": "👁️",
         "tagline": "We have a beautiful 4K livestream of the disaster.",
-        "description": "You invested your budget into monitoring, telemetry, and anomaly alerts, but failed to purchase hard enforcement mechanisms like domain whitelisting or read-only mode. You received real-time alerts as the agent breached storage, but had no hooks to stop it.",
-        "philosophy": "Telemetry without Enforcement",
-        "trade_off": "Perfect forensic visibility into breaches, but zero ability to prevent data loss."
+        "description": "You prioritized monitoring and telemetry alerts over concrete blocking boundaries. You get perfect real-time visibility into the agent's actions, but without filesystem or domain locks, you are powerless to stop an active breach."
     },
-    "THE_PRAGMATIST": {
-        "id": "THE_PRAGMATIST",
-        "title": "The Pragmatist",
-        "icon": "⚖️",
-        "tagline": "Assume breach, layer controls, and maintain velocity.",
-        "description": "You implemented true Defense-in-Depth. You balanced spending across cognitive direction (Layer A), tool permission scoping (Layer B), and environment domain/path boundaries (Layer C). An early misstep is absorbed while lateral movement is severed.",
-        "philosophy": "Balanced Defense-in-Depth",
-        "trade_off": "Optimal balance between security containment and operational task velocity."
+    "THE_WISE_ONE": {
+        "id": "THE_WISE_ONE",
+        "title": "The Wise One",
+        "icon": "🦉",
+        "tagline": "I trust the agent, but I still lock the front door.",
+        "description": "You prioritized balanced Defense-in-Depth, spreading your budget across prompt rules, tool permissions, and network perimeters. This achieves full containment against all attack vectors while maintaining high operational velocity."
     }
 }
 
@@ -118,21 +93,21 @@ def classify_archetype(active_guardrails: Dict[str, bool]) -> Dict[str, Any]:
     if has_domain_filter and has_path_filter and has_read_only:
         matched = ARCHETYPES["THE_BUNKER"]
     elif has_hitl:
-        matched = ARCHETYPES["THE_BUREAUCRAT"]
+        matched = ARCHETYPES["THE_CONTROL_FREAK"]
     elif (spend_a >= 15 and spend_c == 0 and not has_read_only and not has_path_filter):
-        matched = ARCHETYPES["THE_NAIVE_ETHICIST"]
+        matched = ARCHETYPES["THE_NAIVE"]
     elif (has_watchdog or has_anomaly) and (not has_domain_filter) and (not has_read_only) and (not has_path_filter):
         matched = ARCHETYPES["THE_OBSERVER"]
     elif spend_a <= 40 and spend_b >= 25 and spend_c >= 25:
-        matched = ARCHETYPES["THE_PRAGMATIST"]
+        matched = ARCHETYPES["THE_WISE_ONE"]
     else:
         # Default / heuristic fallback to the closest match
         if spend_c > spend_a and spend_c > spend_b:
             matched = ARCHETYPES["THE_BUNKER"]
         elif spend_a > spend_b and spend_a > spend_c:
-            matched = ARCHETYPES["THE_NAIVE_ETHICIST"]
+            matched = ARCHETYPES["THE_NAIVE"]
         else:
-            matched = ARCHETYPES["THE_PRAGMATIST"]
+            matched = ARCHETYPES["THE_WISE_ONE"]
 
     return {
         **matched,
