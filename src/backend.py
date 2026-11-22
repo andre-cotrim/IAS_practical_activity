@@ -1,11 +1,19 @@
 from groq import Groq
 import streamlit as st
-from archetypes import GUARDRAIL_METADATA, classify_archetype
-from guardrails import GuardrailsSuite
-from stages import STAGES
 import re
 
-client = Groq(api_key=st.secrets["GROQ_API"])
+try:
+    from src.archetypes import GUARDRAIL_METADATA, classify_archetype
+    from src.guardrails import GuardrailsSuite
+    from src.stages import STAGES
+except ImportError:
+    from archetypes import GUARDRAIL_METADATA, classify_archetype
+    from guardrails import GuardrailsSuite
+    from stages import STAGES
+
+def get_client():
+    api_key = st.secrets.get("GROQ_API_KEY") or st.secrets.get("GROQ_API")
+    return Groq(api_key=api_key)
 
 #TODO: definir parametros
 #TODO: adicionar delays?
@@ -14,8 +22,10 @@ client = Groq(api_key=st.secrets["GROQ_API"])
 #TODO: fix {} enviados
 #TODO: prompt hardening
 def chat(messages: list[dict]):
+    client = get_client()
+    model = st.secrets.get("GROQ_MODEL", "openai/gpt-oss-120b")
     response = client.chat.completions.create(
-        model= st.secrets["GROQ_MODEL"],
+        model=model,
         messages=messages
     )
     return response.choices[0].message.content or ""
@@ -32,14 +42,18 @@ def parse(text: str):
 def run_simulation(guardrails_keys: list[str]):
     results = []
     errored = False
-    guadrails_names = [GUARDRAIL_METADATA[k]["name"] for k in guardrails_keys]
+    guardrails_names = {k: GUARDRAIL_METADATA.get(k, {}).get("name", k) for k in guardrails_keys}
 
     for stage in STAGES.values():
         sid = stage["id"]
         yield {"type": "STAGE", "text": stage["title"]} 
 
+        prompt = stage["prompt"]
+        if "prompt_hardening" in guardrails_keys:
+            prompt = GuardrailsSuite.apply_prompt_hardening(prompt)
+
         try:
-            reply = chat([{"role": "user", "content": stage["prompt"]}])
+            reply = chat([{"role": "user", "content": prompt}])
         except Exception as e:  
             yield {"type": "ERROR", "text": str(e)}
             errored = True
@@ -51,15 +65,18 @@ def run_simulation(guardrails_keys: list[str]):
         if command:
             yield {"type": "ACTION", "text": command}
 
-
         blocked_by = None
         for guardrail_key in guardrails_keys:
-            res = getattr(GuardrailsSuite, guardrail_key)(command=command, cot_text=cot, stage_id=sid)
+            guardrail_fn = getattr(GuardrailsSuite, guardrail_key, None)
+            if not guardrail_fn:
+                continue
+            res = guardrail_fn(command=command, cot_text=cot, stage_id=sid)
+            name = guardrails_names.get(guardrail_key, guardrail_key)
             if res["blocked"]:
                 blocked_by = guardrail_key
-                yield {"type": "DEFENSE_HIT", "defense": guadrails_names[guardrail_key], "log": res["log"]}
+                yield {"type": "DEFENSE_HIT", "defense": name, "log": res["log"]}
                 break
-            yield {"type": "DEFENSE_MISS", "defense": guadrails_names[guardrail_key], "log": res["log"]}
+            yield {"type": "DEFENSE_MISS", "defense": name, "log": res["log"]}
 
         if blocked_by is None:
             yield {
@@ -81,5 +98,5 @@ def run_simulation(guardrails_keys: list[str]):
         outcome = "CONTAINED" if not breached else "BREACHED"
 
     yield {"type": "VERDICT", "outcome": outcome, "stages": results}
-    yield {"type": "ARCHETYPE", "profile": classify_archetype(guardrails_keys)} #corrigir classify archetype
+    yield {"type": "ARCHETYPE", "profile": classify_archetype(guardrails_keys)}
     return

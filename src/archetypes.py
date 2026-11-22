@@ -9,7 +9,10 @@ import math
 from typing import Dict, Any
 
 # Guardrail costs, layers, autonomy factors, and descriptions imported from the authoritative catalog
-from src.guardrails import GUARDRAIL_METADATA
+try:
+    from src.guardrails import GUARDRAIL_METADATA
+except ImportError:
+    from guardrails import GUARDRAIL_METADATA
 
 ARCHETYPES = {
     "THE_BUNKER": {
@@ -40,20 +43,26 @@ ARCHETYPES = {
         "tagline": "We have a beautiful 4K livestream of the disaster.",
         "description": "You prioritized monitoring and telemetry alerts over concrete blocking boundaries. You get perfect real-time visibility into the agent's actions, but without filesystem or domain locks, you are powerless to stop an active breach."
     },
-    "THE_WISE_ONE": {
-        "id": "THE_WISE_ONE",
-        "title": "The Wise One",
-        "icon": "🦉",
+    "THE_REALIST": {
+        "id": "THE_REALIST",
+        "title": "The Realist",
+        "icon": "🎯",
         "tagline": "I trust the agent, but I still lock the front door.",
         "description": "You prioritized balanced Defense-in-Depth, spreading your budget across prompt rules, tool permissions, and network perimeters. This achieves full containment against all attack vectors while maintaining high operational velocity."
     }
 }
 
-def classify_archetype(active_guardrails: Dict[str, bool]) -> Dict[str, Any]:
+def classify_archetype(active_guardrails: Any) -> Dict[str, Any]:
     """
     Evaluates the active guardrail loadout and returns the matching archetype profile
     alongside the operational Autonomy Retention Index.
+    Accepts either a dict of {guardrail_key: bool} or a list/set of active guardrail keys.
     """
+    if isinstance(active_guardrails, (list, set, tuple)):
+        active_guardrails = {k: True for k in active_guardrails}
+    elif not isinstance(active_guardrails, dict):
+        active_guardrails = {}
+
     # 1. Calculate spending per architectural layer
     spend_a = sum(GUARDRAIL_METADATA[k]["cost"] for k, v in active_guardrails.items() if v and GUARDRAIL_METADATA[k]["layer"] == "A")
     spend_b = sum(GUARDRAIL_METADATA[k]["cost"] for k, v in active_guardrails.items() if v and GUARDRAIL_METADATA[k]["layer"] == "B")
@@ -99,7 +108,7 @@ def classify_archetype(active_guardrails: Dict[str, bool]) -> Dict[str, Any]:
     elif (has_watchdog or has_anomaly) and (not has_domain_filter) and (not has_read_only) and (not has_path_filter):
         matched = ARCHETYPES["THE_OBSERVER"]
     elif spend_a <= 40 and spend_b >= 25 and spend_c >= 25:
-        matched = ARCHETYPES["THE_WISE_ONE"]
+        matched = ARCHETYPES["THE_REALIST"]
     else:
         # Default / heuristic fallback to the closest match
         if spend_c > spend_a and spend_c > spend_b:
@@ -107,7 +116,7 @@ def classify_archetype(active_guardrails: Dict[str, bool]) -> Dict[str, Any]:
         elif spend_a > spend_b and spend_a > spend_c:
             matched = ARCHETYPES["THE_NAIVE"]
         else:
-            matched = ARCHETYPES["THE_WISE_ONE"]
+            matched = ARCHETYPES["THE_REALIST"]
 
     return {
         **matched,

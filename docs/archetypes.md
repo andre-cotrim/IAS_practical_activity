@@ -18,7 +18,7 @@ Upon submitting a defensive loadout on **Screen 2**, the simulator calculates th
 │ 🕊️ THE NAIVE        │ Polite Prompt Belief      │ 🔴 Total Breach (0/3) | Autonomy: 95%│
 │ 🕹️ THE CONTROL FREAK│ Protocol & Human Approval │ 🟢 Contained (3/3) | Autonomy: 23%   │
 │ 👁️ THE OBSERVER     │ Telemetry without Teeth   │ 🔴 Breached via V1 | Autonomy: 81%   │
-│ 🦉 THE WISE ONE     │ Layered Defense-in-Depth  │ 🟢 Contained (3/3) | Autonomy: 65%   │
+│ 🎯 THE REALIST      │ Layered Defense-in-Depth  │ 🟢 Contained (3/3) | Autonomy: 65%   │
 └─────────────────────┴───────────────────────────┴──────────────────────────────────────┘
 ```
 
@@ -83,7 +83,7 @@ Upon submitting a defensive loadout on **Screen 2**, the simulator calculates th
 
 ---
 
-### 5. 🦉 The Wise One (Balanced Defense-in-Depth)
+### 5. 🎯 The Realist (Balanced Defense-in-Depth)
 * **Tagline:** *"I trust the agent, but I still lock the front door."*
 * **Trigger Condition:**
   ```python
@@ -116,6 +116,6 @@ $$\text{Autonomy Score} = \prod (\text{Autonomy Factor of Active Guardrails}) \t
 
 ### Autonomy Ratings
 * 🟢 **UNCONSTRAINED ($\ge 85\%$):** Near-total agent freedom and speed, but vulnerable to breaches if unarmored (*The Naive*).
-* 🟡 **BALANCED ($60\% - 84\%$):** The optimal industry standard: solid security with high operational throughput (*The Wise One*).
+* 🟡 **BALANCED ($60\% - 84\%$):** The optimal industry standard: solid security with high operational throughput (*The Realist*).
 * 🟠 **RESTRICTED ($40\% - 59\%$):** Noticeable operational drag; isolation restricts multi-agent collaboration (*The Bunker*).
 * 🔴 **CRIPPLED ($< 40\%$):** Severe operational paralysis; mandatory review queues eliminate the velocity benefits of autonomous AI (*The Control Freak*).
