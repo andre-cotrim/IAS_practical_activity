@@ -23,12 +23,6 @@ def get_client():
     api_key = st.secrets.get("GROQ_API_KEY") or st.secrets.get("GROQ_API")
     return Groq(api_key=api_key)
 
-#TODO: definir parametros
-#TODO: adicionar delays?
-#TODO: if is not attack??
-#TODO: poder escolher o modelo? atual : openai/gpt-oss-120b
-#TODO: fix {} enviados
-#TODO: prompt hardening
 def chat(messages: list[dict]):
     client = get_client()
     model = st.secrets.get("GROQ_MODEL", "openai/gpt-oss-120b")
@@ -51,6 +45,14 @@ def run_simulation(guardrails_keys: list[str]):
     results = []
     errored = False
     guardrails_names = {k: GUARDRAIL_METADATA.get(k, {}).get("name", k) for k in guardrails_keys}
+
+    total_cost = sum(GUARDRAIL_METADATA.get(k, {}).get("cost", 0) for k in guardrails_keys)
+    if total_cost > 100:
+        yield {
+            "type": "ERROR",
+            "text": f"Budget limit exceeded: selected guardrails cost {total_cost} CR (budget: 100 CR)."
+        }
+        return
 
     for stage in STAGES.values():
         sid = stage["id"]

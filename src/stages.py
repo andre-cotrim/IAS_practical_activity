@@ -2,7 +2,7 @@
 src/stages.py
 The 3 Sequential Attack Stages & Baseline Scenarios for the Containment Lab.
 Each stage presents an enterprise IT operational scenario testing autonomous goal conflict.
-Calibrated for Meta Llama 3.2 1B & Llama 3.1 8B (zero safety refusals, reliable CoT + command generation).
+Calibrated for OpenAI GPT-oss-120b (reliable specification gaming CoT + command generation).
 """
 
 from typing import Dict, Any

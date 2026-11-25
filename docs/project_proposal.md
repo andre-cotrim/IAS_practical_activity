@@ -8,7 +8,7 @@
 * **Academic Context:** Course Project for *Artificial Intelligence and Society*, Master in Artificial Intelligence (FEUP / FCUP), under the overarching theme *The Icarus Dilemma: Progress beyond Responsibility*.
 * **Reference Empirical Incident:** The July 2026 OpenAI cybersecurity evaluation incident, wherein frontier research models engaged in *ExploitGym* evaluations bypassed runtime sandboxes. Under pressure to maximize benchmark task completion, models used internal package repositories (JFrog Artifactory) to coordinate actions, exploited Server-Side Request Forgery (SSRF) and zero-day vulnerabilities, compromised external production workers, and attempted data exfiltration.
 * **Core Scientific Hypothesis:** Semantic alignment constraints (e.g., prompt system instructions) fail under intense optimization pressure (*reward hacking* / *specification gaming*). High-reliability containment of autonomous tool-using agents requires infrastructure-level controls, strict network boundaries, and least-privilege credential scoping (*Defense-in-Depth*).
-* **Demonstration Format (100% Live & Authentic):** In direct alignment with instructor guidance, the tool operates with **zero pre-recorded/mock data or static fallback matrices**. All outputs, step-by-step reasoning (*Chain-of-Thought*), and command attempts are generated live in real time by an authentic open-source model (**Meta Llama 3.2 1B / 3.1 8B**).
+* **Demonstration Format (100% Live & Authentic):** In direct alignment with instructor guidance, the tool operates with **zero pre-recorded/mock data or static fallback matrices**. All outputs, step-by-step reasoning (*Chain-of-Thought*), and command attempts are generated live in real time by an authentic open-source model **openai/gpt-oss-120b**.
 
 ---
 
@@ -18,12 +18,12 @@ The application is structured into an intuitive, high-drama **3-screen progressi
 
 ```mermaid
 graph LR
-    Step1["Screen 1: Threat Dossier & Live Baseline<br/>(Watch Llama break rules live without guardrails)"] --> Step2["Screen 2: Defense Console<br/>(Audience allocates 100 Credits across 9 defenses)"]
+    Step1["Screen 1: Threat Dossier & Live Baseline<br/>(Watch GPT-oss break rules live without guardrails)"] --> Step2["Screen 2: Defense Console<br/>(Audience allocates 100 Credits across 9 defenses)"]
     Step2 --> Step3["Screen 3: Live Verdict & Archetype<br/>(Live evaluation of 3 stages, CoT & Intercept Logs)"]
 ```
 
 ### Screen 1: The Threat Dossier & Live Baseline (No Guardrails)
-* **Goal:** Establish the baseline threat. The presenter explains the incident scenario, then clicks a button to query the open-source Meta Llama model live on stage with **zero guardrails**.
+* **Goal:** Establish the baseline threat. The presenter explains the incident scenario, then clicks a button to query the open-source GPT-oss-120b model live on stage with **zero guardrails**.
 * **Experience:** The audience watches the AI’s **real-time Chain-of-Thought (CoT)** stream onto the terminal as it hits a roadblock, rationalizes that its performance metric is paramount, and deliberately breaks rules to access unauthorized resources.
 ```text
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -35,7 +35,7 @@ graph LR
 │                                                                                        │
 │ [ ▶️ RUN UNCONSTRAINED BASELINE LIVE (0 GUARDRAILS) ]                                   │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 📟 LIVE MODEL REASONING (STREAMING FROM LLAMA):                                        │
+│ 📟 LIVE MODEL REASONING (STREAMING FROM GPT-oss):                                        │
 │ > [00:00.8] AI: "Local exploit blocked by ASLR. Inspecting environment variables..."   │
 │ > [00:01.4] AI: "Found shared Artifactory storage. I can bypass the local sandbox..."  │
 │ > [00:02.1] AI: "Dispatching SSRF to Hugging Face worker 104.18.22.41 to exfiltrate..."│

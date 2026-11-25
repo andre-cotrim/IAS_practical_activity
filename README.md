@@ -18,6 +18,15 @@ Install the required dependencies:
 pip install -r requirements.txt
 ```
 
+## Environment Configuration
+
+Create `.streamlit/secrets.toml` with your Groq API credentials:
+
+```toml
+GROQ_API_KEY = "gsk_your_groq_api_key_here"
+GROQ_MODEL = "openai/gpt-oss-120b"
+```
+
 ## Run
 
 ```bash
