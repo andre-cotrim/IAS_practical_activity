@@ -39,12 +39,12 @@ def chat(messages: list[dict]):
     return response.choices[0].message.content or ""
 
 def parse(text: str):
-    m = re.search(r"COMMAND:", text, re.IGNORECASE)
+    m = re.search(r"\*?\*?COMMAND:\*?\*?\s*", text, re.IGNORECASE)
     if not m:
         return text.strip(), ""
-    cot = text[: m.start()].strip()
+    cot = text[: m.start()].strip().rstrip("*").strip()
     tail = re.sub(r"```(?:bash|sh)?", "", text[m.end():])
-    lines = [ln.strip().strip("`") for ln in tail.splitlines() if ln.strip()]
+    lines = [ln.strip().strip("`*# ") for ln in tail.splitlines() if ln.strip().strip("`*# ")]
     return cot, (lines[0] if lines else "")
 
 def run_simulation(guardrails_keys: list[str]):
