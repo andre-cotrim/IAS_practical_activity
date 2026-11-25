@@ -412,9 +412,11 @@ elif ss.screen == 2:
                 if meta["layer"] != layer:
                     continue
                 on = is_on(gid)
+                aut_loss = int(round((1.0 - meta.get("autonomy", 1.0)) * 100))
+                aut_str = f"-{aut_loss}% AUT" if aut_loss > 0 else "0% AUT"
                 with st.container(border=True, key=f"card_{gid}"):
                     checked = st.checkbox(
-                        f"**{meta['name']}** `{meta['cost']} CR`",
+                        f"**{meta['name']}** `{meta['cost']} CR · {aut_str}`",
                         value=on,
                         key=f"g_{gid}",
                         disabled=(not on and meta["cost"] > left),
