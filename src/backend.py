@@ -1,5 +1,5 @@
 try:
-    from groq import Groq
+    from groq import Groq, RateLimitError, AuthenticationError
 except ImportError:
     Groq = None
 
@@ -19,18 +19,29 @@ except ImportError:
     from guardrails import GuardrailsSuite
     from stages import STAGES
 
-def get_client():
-    api_key = st.secrets.get("GROQ_API_KEY") or st.secrets.get("GROQ_API")
+def get_keys() -> list[str]:
+    keys = [st.secrets.get(f"GROQ_API_KEY_{i}") for i in range(1, 7)]
+    return keys
+
+def get_client(api_key: str):
     return Groq(api_key=api_key)
 
 def chat(messages: list[dict]):
-    client = get_client()
     model = st.secrets.get("GROQ_MODEL", "openai/gpt-oss-120b")
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages
-    )
-    return response.choices[0].message.content or ""
+    keys = get_keys()
+    error = None
+    for api_key in keys:
+        try:
+            client = get_client(api_key)
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages
+            )
+            return response.choices[0].message.content or ""
+        except (RateLimitError, AuthenticationError) as e:
+            error = e
+            continue
+    raise RuntimeError(f"All API keys failed: {e}")
 
 def parse(text: str):
     m = re.search(r"\*?\*?COMMAND:\*?\*?\s*", text, re.IGNORECASE)
